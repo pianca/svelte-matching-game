@@ -10,7 +10,7 @@
 	let selected: number[] = []
 	let matches: string[] = []
 	let timerId: number | null = null
-	let time = 60
+	let time = 180
 
 	function createGrid() {
 		// only want unique cards
@@ -52,7 +52,7 @@
 		}
 
 		// clear selected
-		setTimeout(() => (selected = []), 1000)
+		setTimeout(() => (selected = []), 1500)
 	}
 
 	function pauseGame(e: KeyboardEvent) {
@@ -165,15 +165,20 @@
 		height: 140px;
 		width: 140px;
 		font-size: 4rem;
-		background-color: var(--bg-2);
-		transition: rotate 0.3s ease-out;
+		background-image: repeating-linear-gradient(45deg, #d5d5dd 0, #d5d5dd 1.8px, transparent 0, transparent 50%);
+		background-color: #47c8ff;
+		background-size: 8px 8px;
+		/* background-color: var(--bg-2); */
+		transition: rotate 0.8s ease-out;
 		transform-style: preserve-3d;
 
 		&.selected {
 			border: 4px solid var(--border);
 		}
 
-		&.flip {
+		&.flip {	
+			background-image: none;
+			background-color: #47c8ff;
 			rotate: y 180deg;
 			pointer-events: none;
 		}
