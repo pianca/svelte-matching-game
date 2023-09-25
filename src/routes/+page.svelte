@@ -4,13 +4,13 @@
 	type State = 'start' | 'playing' | 'paused' | 'won' | 'lost'
 
 	let state: State = 'start'
-	let size = 20
+	let size = 20;
 	let grid = createGrid()
 	let maxMatches = grid.length / 2
 	let selected: number[] = []
 	let matches: string[] = []
 	let timerId: number | null = null
-	let time = 180
+	let time = 300
 
 	function createGrid() {
 		// only want unique cards
@@ -75,7 +75,7 @@
 		selected = []
 		matches = []
 		timerId = null
-		time = 60
+		time = 300
 	}
 
 	function gameWon() {
@@ -96,6 +96,8 @@
 	$: selected.length === 2 && matchCards()
 	$: maxMatches === matches.length && gameWon()
 	$: time === 0 && gameLost()
+
+	document.addEventListener('contextmenu', event => event.preventDefault());
 </script>
 
 <svelte:window on:keydown={pauseGame} />
@@ -177,13 +179,16 @@
 		}
 
 		&.flip {	
-			background-image: none;
+			/* background-image: none; */
 			background-color: #47c8ff;
 			rotate: y 180deg;
 			pointer-events: none;
 		}
 
 		& .back {
+			background-image: none;
+			background-color: #334455;
+
 			position: absolute;
 			inset: 0;
 			display: grid;
@@ -191,11 +196,16 @@
 			backface-visibility: hidden;
 			rotate: y 180deg;
 		}
-
+		
 		& .match {
 			transition: opacity 0.3s ease-out;
+			background-color: #33FF33;
 			opacity: 0.4;
 		}
+	}
+
+	.card:hover {
+		background-color: #ff9a4776;
 	}
 
 	.matches {
