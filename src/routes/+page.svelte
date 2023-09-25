@@ -96,8 +96,6 @@
 	$: selected.length === 2 && matchCards()
 	$: maxMatches === matches.length && gameWon()
 	$: time === 0 && gameLost()
-
-	document.addEventListener('contextmenu', event => event.preventDefault());
 </script>
 
 <svelte:window on:keydown={pauseGame} />
