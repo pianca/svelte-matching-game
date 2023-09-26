@@ -157,7 +157,7 @@
 <style>
 	.cards {
 		display: grid;
-		grid-template-columns: repeat(5, 1fr);
+		grid-template-columns: repeat(5, 1fr); 
 		gap: 0.4rem;
 	}
 
@@ -177,7 +177,7 @@
 		}
 
 		&.flip {	
-			/* background-image: none; */
+			background-image: none;
 			background-color: #47c8ff;
 			rotate: y 180deg;
 			pointer-events: none;
@@ -197,6 +197,7 @@
 		
 		& .match {
 			transition: opacity 0.3s ease-out;
+			background-image: none;
 			background-color: #33FF33;
 			opacity: 0.4;
 		}
