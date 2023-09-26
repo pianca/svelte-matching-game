@@ -52,7 +52,7 @@
 		}
 
 		// clear selected
-		setTimeout(() => (selected = []), 1500)
+		setTimeout(() => (selected = []), 2500)
 	}
 
 	function pauseGame(e: KeyboardEvent) {
