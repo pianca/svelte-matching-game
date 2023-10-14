@@ -96,9 +96,31 @@
 	$: selected.length === 2 && matchCards()
 	$: maxMatches === matches.length && gameWon()
 	$: time === 0 && gameLost()
+
+	let audio:HTMLAudioElement;
+  let isPlaying = false;
+  
+	let mp3Url = "/person-clapping-sound-effect.mp3";
+
+  function togglePlay() {
+    if (isPlaying) {
+      audio.pause();
+    } else {
+      audio.play();
+    }
+    isPlaying = !isPlaying;
+  }
 </script>
 
 <svelte:window on:keydown={pauseGame} />
+
+<div>
+	<h2>MP3 Player</h2>
+	<audio bind:this={audio} src={mp3Url} preload="auto"></audio>
+	<button on:click={togglePlay}>
+	  {isPlaying ? 'Pause' : 'Play'}
+	</button>
+  </div>
 
 {#if state === 'start'}
 	<h1>Matching game</h1>
