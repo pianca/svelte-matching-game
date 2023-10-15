@@ -1,13 +1,9 @@
 <script lang="ts">
-  import { Sound } from "svelte-sound";
+  import { SoundTypes, SoundTracks, SoundManager } from "./soundManager";
   import { emoji } from "./emoji";
-
   type State = "start" | "playing" | "paused" | "won" | "lost";
 
-  let win = "person-clapping-sound-effect.mp3";
-  let fart = "fart-sound-effect.mp3";
-  let lose = "losing-sound-effect.mp3";
-  let nice = "short-winning-brass-sound-effect.mp3";
+  const sm: SoundManager = createSoundManager();
 
   let state: State = "start";
   let size = 20;
@@ -17,6 +13,28 @@
   let matches: string[] = [];
   let timerId: number | null = null;
   let time = 300;
+
+  function createSoundManager() {
+    return new SoundManager([
+      new SoundTracks(SoundTypes.win, ["person-clapping-sound-effect.mp3"]),
+      new SoundTracks(SoundTypes.nice, ["short-winning-brass-sound-effect.mp3"]),
+      new SoundTracks(SoundTypes.lose, ["losing-sound-effect.mp3"]),
+      new SoundTracks(SoundTypes.tick, ["tick1.mp3"]),
+      new SoundTracks(SoundTypes.fart, [
+        "fart-sound-effect.mp3",
+        "girl-laughing.mp3",
+        "fart_01.mp3",
+        "fart_02.mp3",
+        "fart_03.mp3",
+        "fart_04.mp3",
+        "fart_05.mp3",
+        "fart_06.mp3",
+        "fart_07.mp3",
+        "fart_08.mp3",
+        "fart_09.mp3",
+      ]),
+    ]);
+  }
 
   function createGrid() {
     // only want unique cards
@@ -46,6 +64,7 @@
   }
 
   function selectCard(cardIndex: number) {
+    sm.play(SoundTypes.tick);
     selected = selected.concat(cardIndex);
   }
 
@@ -55,9 +74,9 @@
 
     if (grid[first] === grid[second]) {
       matches = matches.concat(grid[first]);
-      niceSound.play();
+      sm.play(SoundTypes.nice);
     } else {
-      fartSound.play();
+      sm.play(SoundTypes.fart);
     }
 
     // clear selected
@@ -88,13 +107,13 @@
   }
 
   function gameWon() {
-    winSound.play();
+    sm.play(SoundTypes.win);
     state = "won";
     resetGame();
   }
 
   function gameLost() {
-    loseSound.play();
+    sm.play(SoundTypes.lose);
     state = "lost";
     resetGame();
   }
@@ -107,11 +126,6 @@
   $: selected.length === 2 && matchCards();
   $: maxMatches === matches.length && gameWon();
   $: time === 0 && gameLost();
-
-  const winSound = new Sound(win);
-  const fartSound = new Sound(fart);
-  const loseSound = new Sound(lose);
-  const niceSound = new Sound(nice);
 </script>
 
 <svelte:window on:keydown={pauseGame} />
