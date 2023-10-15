@@ -4,10 +4,10 @@
 
   type State = "start" | "playing" | "paused" | "won" | "lost";
 
-  let win = "/person-clapping-sound-effect.mp3";
-  let fart = "/fart-sound-effect.mp3";
-  let lose = "/losing-sound-effect.mp3";
-  let nice = "/short-winning-brass-sound-effect.mp3";
+  let win = "person-clapping-sound-effect.mp3";
+  let fart = "fart-sound-effect.mp3";
+  let lose = "losing-sound-effect.mp3";
+  let nice = "short-winning-brass-sound-effect.mp3";
 
   let state: State = "start";
   let size = 20;
