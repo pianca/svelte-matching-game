@@ -2,7 +2,11 @@
   import { SoundTypes, SoundTracks, SoundManager } from "./soundManager";
   import { emoji } from "./emoji";
   type State = "start" | "playing" | "paused" | "won" | "lost";
-
+  type Pos = {
+    isEnter: boolean;
+    x: number;
+    y: number;
+  };
   const sm: SoundManager = createSoundManager();
 
   let state: State = "start";
@@ -11,13 +15,16 @@
   let maxMatches = grid.length / 2;
   let selected: number[] = [];
   let matches: string[] = [];
+  let matchesIndexes: number[] = [];
   let timerId: number | null = null;
   let time = 300;
 
   function createSoundManager() {
     return new SoundManager([
       new SoundTracks(SoundTypes.win, ["person-clapping-sound-effect.mp3"]),
-      new SoundTracks(SoundTypes.nice, ["short-winning-brass-sound-effect.mp3"]),
+      new SoundTracks(SoundTypes.nice, [
+        "short-winning-brass-sound-effect.mp3",
+      ]),
       new SoundTracks(SoundTypes.lose, ["losing-sound-effect.mp3"]),
       new SoundTracks(SoundTypes.tick, ["tick1.mp3"]),
       new SoundTracks(SoundTypes.fart, [
@@ -74,6 +81,7 @@
 
     if (grid[first] === grid[second]) {
       matches = matches.concat(grid[first]);
+      matchesIndexes = matchesIndexes.concat(first).concat(second);
       sm.play(SoundTypes.nice);
     } else {
       sm.play(SoundTypes.fart);
@@ -102,6 +110,7 @@
     maxMatches = grid.length / 2;
     selected = [];
     matches = [];
+    matchesIndexes = [];
     timerId = null;
     time = 300;
   }
@@ -118,6 +127,68 @@
     resetGame();
   }
 
+  function getDeltaMovment(key: string): Pos {
+    // console.log(key);
+    switch (key) {
+      case "ArrowDown":
+        return { isEnter: false, x: 0, y: +1 };
+      case "ArrowUp":
+        return { isEnter: false, x: 0, y: -1 };
+      case "ArrowLeft":
+        return { isEnter: false, x: -1, y: 0 };
+      case "ArrowRight":
+        return { isEnter: false, x: +1, y: 0 };
+      case "Enter":
+        return { isEnter: true, x: 0, y: 0 };
+      default:
+        return { isEnter: false, x: 0, y: 0 };
+    }
+  }
+  function updatePos(pos: Pos, delta: Pos) {
+    return { x: pos.x + delta.x, y: pos.y + delta.y, isEnter: delta.isEnter };
+  }
+  function isValidPos(pos: Pos): boolean {
+    return 0 <= pos.x && pos.x < 5 && 0 <= pos.y && pos.y < 4;
+  }
+  function isSelectedOrMatched(cardIndex: number): boolean {
+    return selected.includes(cardIndex) || matchesIndexes.includes(cardIndex);
+  }
+  function doStuff(pos: Pos): void {
+    let idx = computePreSelection(pos);
+    // console.log('idx' + idx)
+    if (
+      pos.isEnter &&
+      isSelectedOrMatched(idx) === false &&
+      selected.length < 2
+    ) {
+      selectCard(idx);
+    }
+  }
+  function computePreSelection(pos: Pos): number {
+    return pos.y * 5 + pos.x;
+  }
+  function cardIsPreSelected(cardIndex: number, pos: Pos) {
+    let computed = computePreSelection(pos);
+    return computed === cardIndex;
+  }
+
+  let oldPos = { isEnter: false, x: 0, y: 0 };
+
+  function onKeyDown(e: KeyboardEvent) {
+    let delta = getDeltaMovment(e.key);
+    let newPos = updatePos(oldPos, delta);
+
+    if (isValidPos(newPos)) {
+      doStuff(newPos);
+
+      //if (isDifferentPos(oldPos, newPos)) {
+      newPos.isEnter = false;
+      oldPos = newPos;
+      //}
+    } else {
+    }
+  }
+
   $: if (state === "playing") {
     //	in case you pause the game
     !timerId && startGameTimer();
@@ -126,9 +197,16 @@
   $: selected.length === 2 && matchCards();
   $: maxMatches === matches.length && gameWon();
   $: time === 0 && gameLost();
+
+  function isDifferentPos(
+    oldPos: { x: number; y: number },
+    newPos: { x: number; y: number }
+  ) {
+    return oldPos.x !== newPos.x || oldPos.y !== newPos.y;
+  }
 </script>
 
-<svelte:window on:keydown={pauseGame} />
+<svelte:window on:keydown|preventDefault={onKeyDown} />
 
 {#if state === "start"}
   <h1>Matching game</h1>
@@ -150,8 +228,14 @@
     {/each}
   </div>
 
+  <div>
+    <h3>{oldPos.x}</h3>
+    <h3>{oldPos.y}</h3>
+  </div>
+
   <div class="cards">
     {#each grid as card, cardIndex}
+      {@const isPreSelected = cardIsPreSelected(cardIndex, oldPos)}
       {@const isSelected = selected.includes(cardIndex)}
       {@const isSelectedOrMatch =
         selected.includes(cardIndex) || matches.includes(card)}
@@ -165,6 +249,7 @@
         class="card"
         class:selected={isSelected}
         class:flip={isSelectedOrMatch}
+        class:pre={isPreSelected}
         disabled={isSelectedOrMatchOrMaxSelectionReached}
         on:click={() => selectCard(cardIndex)}
       >
@@ -209,9 +294,15 @@
     /* background-color: var(--bg-2); */
     transition: rotate 0.8s ease-out;
     transform-style: preserve-3d;
+    &.pre {
+      border-color: red;
+      border: 8px solid red;
+      background-color: #ff9a4776;
+    }
 
     &.selected {
-      border: 4px solid var(--border);
+      border-color: red;
+      border: 8px dashed red;
     }
 
     &.flip {
